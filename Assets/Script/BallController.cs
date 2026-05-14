@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 
 public class BallController : MonoBehaviour
 {
@@ -22,12 +24,18 @@ public class BallController : MonoBehaviour
     [Header("Post-Bounce (Rigidbody) Settings")]
     public float postBounceSpeed = 14f;
     #endregion
-    public bool IsDelivering { get; private set; } // Flags
+    
 
     #region Runtime State private variables
+    public enum BallState
+    {
+        Idle,
+        Airborne,
+        PostBounce
+    }
+
+    public BallState currentState { get; private set; } = BallState.Idle;
  
-    [Header("Runtime State — Read Only")]
-    private bool hasBounced   = false;
     private float currentT    = 0f;
  
     private Vector3 p0;   // Start   : bowler hand
@@ -40,6 +48,11 @@ public class BallController : MonoBehaviour
  
     private Rigidbody rb;
 
+    [Header("Reset")]
+    public float resetDelay = 3f;
+
+    private float postBounceTimer = 0f;
+
     #endregion
  
     private void Awake()
@@ -49,16 +62,23 @@ public class BallController : MonoBehaviour
  
     private void FixedUpdate()
     {
-        if (!IsDelivering || hasBounced) return;
-        UpdateAirPhase();
+         switch (currentState)
+        {
+            case BallState.Airborne:
+                UpdateAirPhase();
+                break;
+
+            case BallState.PostBounce:
+                UpdatePostBounce();
+                break;
+        }   
     }
 
     public void BowlBall()
     {
-        if (IsDelivering) return;   // Prevent double-trigger
+        if (currentState != BallState.Idle) return;   // Prevent double-trigger
  
-        hasBounced    = false;
-        IsDelivering  = true;
+        currentState = BallState.Airborne;
         deliveryTimer = 0f;
         currentT      = 0f;
  
@@ -74,7 +94,12 @@ public class BallController : MonoBehaviour
  
         Vector3 forwardFlat = p2 - p0;
         forwardFlat.y = 0f;
-        forwardFlat.Normalize();
+
+        if (forwardFlat.sqrMagnitude > 0.0001f)
+        {
+            forwardFlat.Normalize();
+        }
+
         Vector3 swingAxis = Vector3.Cross(Vector3.up, forwardFlat).normalized;
  
         float normalizedSwing  = swingAmount / 100f;
@@ -103,22 +128,37 @@ public class BallController : MonoBehaviour
     }
     private void OnBallReachedMarker()
     {
-        hasBounced   = false;   // Will be true once we hand off
-        IsDelivering = false;
+        currentState = BallState.PostBounce;
  
-        transform.position = p2;
+        rb.position = p2;
         Vector3 tangentAtImpact = EvaluateBezierTangent(p0, p1, p2, 1f);
  
         Vector3 horizontalDir  = tangentAtImpact;
         horizontalDir.y        = 0f;
-        horizontalDir.Normalize();
+
+        if (horizontalDir.sqrMagnitude > 0.0001f)
+        {
+            horizontalDir.Normalize();
+        }
  
         Vector3 bounceVelocity = horizontalDir * postBounceSpeed
                                + Vector3.up    * bounceUpwardSpeed;
  
         rb.velocity    = bounceVelocity;
- 
-        hasBounced = true;
+        postBounceTimer = 0f; 
+        currentState = BallState.PostBounce;
+    }
+    private void UpdatePostBounce()
+    {
+        postBounceTimer += Time.fixedDeltaTime;
+        if (postBounceTimer >= resetDelay)
+        {
+            ResetBall();
+        }
+    }
+    private void ResetBall()
+    {
+        currentState = BallState.Idle;
     }
  
     private static Vector3 EvaluateBezier(Vector3 p0, Vector3 p1, Vector3 p2, float t)

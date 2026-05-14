@@ -506,8 +506,7 @@ MonoBehaviour:
   arcHeight: 5
   swingAmount: 0
   postBounceSpeed: 15
-  hasBounced: 0
-  currentT: 0
+  resetDelay: 1
 --- !u!54 &250814094
 Rigidbody:
   m_ObjectHideFlags: 0

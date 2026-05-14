@@ -30,7 +30,7 @@ public class BallMarker : MonoBehaviour
  
     private void Update()
     {
-        if (ballLauncher != null && ballLauncher.IsDelivering)
+        if (ballLauncher != null && ballLauncher.currentState == BallController.BallState.Airborne)
         {
             return;
         }
