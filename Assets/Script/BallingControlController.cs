@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 
-public class Controller : MonoBehaviour
+public class BallingControlController : MonoBehaviour
 {
     [Header("References")]
     public RectTransform meterRect;
