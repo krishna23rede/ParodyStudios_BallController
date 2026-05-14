@@ -396,7 +396,7 @@ GameObject:
   - component: {fileID: 250814094}
   - component: {fileID: 250814093}
   m_Layer: 0
-  m_Name: Ball
+  m_Name: BallController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -507,7 +507,6 @@ MonoBehaviour:
   swingAmount: 0
   spinAmount: 0
   maxSpinAngle: 100
-  postBounceSpeed: 15
   resetDelay: 1
 --- !u!54 &250814094
 Rigidbody:

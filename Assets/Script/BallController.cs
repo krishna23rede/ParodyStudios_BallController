@@ -25,10 +25,7 @@ public class BallController : MonoBehaviour
 
     public float maxSpinAngle = 25f;
 
-    [Header("Post-Bounce (Rigidbody) Settings")]
-    public float postBounceSpeed = 14f;
-
-    [Header("Reset")]
+    [Header("Reset Ball State")]
     public float resetDelay = 3f;
 
     #endregion
@@ -50,6 +47,7 @@ public class BallController : MonoBehaviour
 
     private static readonly float bounceUpwardSpeed  = 10f;
     private static readonly float maxSwingDeviation  = 10f;
+    private static readonly float postBounceSpeed = 15f;
 
     private Rigidbody rb;
 
