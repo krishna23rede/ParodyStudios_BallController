@@ -45,7 +45,6 @@ public class BallController : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        rb.isKinematic = true;
     }
  
     private void FixedUpdate()
@@ -63,7 +62,6 @@ public class BallController : MonoBehaviour
         deliveryTimer = 0f;
         currentT      = 0f;
  
-        rb.isKinematic = true;
         rb.velocity       = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
  
@@ -85,14 +83,14 @@ public class BallController : MonoBehaviour
         p1 = apex + swingAxis * lateralOffset;
  
         // Snap ball to start position
-        transform.position = p0;
+        rb.position = p0;
     }
     private void UpdateAirPhase()
     {
         deliveryTimer += Time.fixedDeltaTime;
         currentT       = Mathf.Clamp01(deliveryTimer / deliveryDuration);
  
-        transform.position = EvaluateBezier(p0, p1, p2, currentT);
+        rb.MovePosition(EvaluateBezier(p0, p1, p2, currentT));
  
         Vector3 tangent = EvaluateBezierTangent(p0, p1, p2, currentT);
         if (tangent.sqrMagnitude > 0.001f)
@@ -118,7 +116,6 @@ public class BallController : MonoBehaviour
         Vector3 bounceVelocity = horizontalDir * postBounceSpeed
                                + Vector3.up    * bounceUpwardSpeed;
  
-        rb.isKinematic = false;
         rb.velocity    = bounceVelocity;
  
         hasBounced = true;
